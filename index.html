@@ -7,7 +7,22 @@
     <link rel="stylesheet" href="/src/style.css">
 </head>
 <body>
-    <div id="app">test 2git</div>
+    <div id="app">
+        <main class="timer" aria-label="Pomodoro timer">
+            <p class="timer__mode" id="mode-indicator">Work Session</p>
+
+            <h1 class="timer__display" id="time-display" aria-live="polite">25:00</h1>
+
+            <div class="timer__controls" role="group" aria-label="Timer controls">
+                <button class="timer__button timer__button--primary" id="start-pause-btn" type="button">
+                    Start
+                </button>
+                <button class="timer__button timer__button--secondary" id="reset-btn" type="button">
+                    Reset
+                </button>
+            </div>
+        </main>
+    </div>
     <script type="module" src="/src/main.js"></script>
 </body>
 </html>

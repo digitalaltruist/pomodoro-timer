@@ -1,1 +1,146 @@
-/* We'll add our styles here */
+@import url("https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&display=swap");
+
+:root {
+  /* Colors - Liquid Glass dark theme */
+  --color-bg: #0b0e14;
+  --color-surface: rgba(30, 35, 47, 0.62);
+  --color-surface-elevated: rgba(42, 49, 66, 0.72);
+  --color-surface-stroke: rgba(255, 255, 255, 0.14);
+  --color-text-primary: #f5f7ff;
+  --color-text-secondary: #b4bbd3;
+  --color-text-muted: #8d95b1;
+
+  /* Distinct mode accents */
+  --color-work: #ff5f57;
+  --color-work-soft: rgba(255, 95, 87, 0.2);
+  --color-break: #32d6ff;
+  --color-break-soft: rgba(50, 214, 255, 0.2);
+
+  /* Semantic status defaults */
+  --color-mode-primary: var(--color-work);
+  --color-mode-soft: var(--color-work-soft);
+
+  /* Spacing scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
+
+  /* Typography */
+  --font-body: "SF Pro Text", "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Nanum Gothic Coding", "SF Mono", "JetBrains Mono", "Menlo", "Consolas", monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-timer: clamp(3rem, 8vw, 6rem);
+
+  /* Border radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-pill: 9999px;
+}
+
+/* Optional mode helpers */
+#app[data-mode="break"] {
+  --color-mode-primary: var(--color-break);
+  --color-mode-soft: var(--color-break-soft);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+}
+
+#app {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-xl);
+}
+
+.timer {
+  width: min(100%, 28rem);
+  display: grid;
+  gap: var(--space-xl);
+  padding: calc(var(--space-xl) + var(--space-sm));
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-stroke);
+  border-radius: var(--radius-xl);
+  text-align: center;
+}
+
+.timer__mode {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.timer__display {
+  font-family: var(--font-mono);
+  font-size: var(--text-timer);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.timer__controls {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+}
+
+.timer__button {
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  padding: var(--space-md) var(--space-xl);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 120ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.timer__button:hover {
+  transform: translateY(-1px);
+}
+
+.timer__button:focus-visible {
+  outline: 2px solid var(--color-mode-primary);
+  outline-offset: 2px;
+}
+
+.timer__button--primary {
+  background: var(--color-mode-primary);
+  color: var(--color-bg);
+}
+
+.timer__button--primary:hover {
+  filter: brightness(1.05);
+}
+
+.timer__button--secondary {
+  background: var(--color-surface-elevated);
+  border-color: var(--color-surface-stroke);
+  color: var(--color-text-secondary);
+}
+
+.timer__button--secondary:hover {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
