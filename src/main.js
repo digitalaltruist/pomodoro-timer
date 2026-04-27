@@ -10,9 +10,14 @@ const timeDisplay = document.getElementById("time-display");
 const startPauseButton = document.getElementById("start-pause-btn");
 const resetButton = document.getElementById("reset-btn");
 const durationToggleButton = document.getElementById("duration-toggle");
+const durationSummary = document.getElementById("duration-summary");
 const durationDrawer = document.getElementById("duration-drawer");
 const workDurationInput = document.getElementById("work-duration-input");
 const breakDurationInput = document.getElementById("break-duration-input");
+const workIncrementButton = document.getElementById("work-increment-btn");
+const workDecrementButton = document.getElementById("work-decrement-btn");
+const breakIncrementButton = document.getElementById("break-increment-btn");
+const breakDecrementButton = document.getElementById("break-decrement-btn");
 
 function clampDuration(minutes) {
   return Math.min(MAX_DURATION_MINUTES, Math.max(MIN_DURATION_MINUTES, minutes));
@@ -61,6 +66,9 @@ const state = {
 };
 
 let intervalId = null;
+let alertAnimationTimeoutId = null;
+const alarmAudio = new Audio("/alarm-bell.mp3");
+let isAlarmAudioUnlocked = false;
 
 function getDurationForMode(mode) {
   return (mode === "work" ? durations.workMinutes : durations.breakMinutes) * 60;
@@ -70,9 +78,14 @@ function saveDurations() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(durations));
 }
 
+function renderDurationSummary() {
+  durationSummary.textContent = `Work: ${durations.workMinutes} min · Break: ${durations.breakMinutes} min`;
+}
+
 function syncDurationInputs() {
   workDurationInput.value = String(durations.workMinutes);
   breakDurationInput.value = String(durations.breakMinutes);
+  renderDurationSummary();
 }
 
 function getDurationNameByMode(mode) {
@@ -90,6 +103,23 @@ function updateDurationFromInput(mode, inputElement) {
   durations[durationName] = sanitizedValue;
   inputElement.value = String(sanitizedValue);
   saveDurations();
+  renderDurationSummary();
+
+  if (!state.isRunning && state.currentMode === mode) {
+    state.timeRemaining = getDurationForMode(mode);
+    render();
+  }
+}
+
+function stepDuration(mode, delta) {
+  const durationName = getDurationNameByMode(mode);
+  const inputElement = mode === "work" ? workDurationInput : breakDurationInput;
+  const nextValue = clampDuration(durations[durationName] + delta);
+
+  durations[durationName] = nextValue;
+  inputElement.value = String(nextValue);
+  saveDurations();
+  renderDurationSummary();
 
   if (!state.isRunning && state.currentMode === mode) {
     state.timeRemaining = getDurationForMode(mode);
@@ -103,6 +133,46 @@ function toggleDurationDrawer() {
 
   durationToggleButton.setAttribute("aria-expanded", String(nextOpenState));
   durationDrawer.hidden = !nextOpenState;
+}
+
+function unlockAlarmAudio() {
+  if (isAlarmAudioUnlocked) {
+    return;
+  }
+
+  alarmAudio.play()
+    .then(() => {
+      alarmAudio.pause();
+      alarmAudio.currentTime = 0;
+      isAlarmAudioUnlocked = true;
+    })
+    .catch((error) => {
+      console.warn("Alarm audio is still locked by browser policy.", error);
+    });
+}
+
+function playAlarmAudio() {
+  alarmAudio.currentTime = 0;
+  alarmAudio.play().catch((error) => {
+    console.warn("Alarm playback failed.", error);
+  });
+}
+
+function notifyModeSwitch() {
+  playAlarmAudio();
+
+  appContainer.classList.remove("timer-alert");
+  void appContainer.offsetWidth;
+  appContainer.classList.add("timer-alert");
+
+  if (alertAnimationTimeoutId !== null) {
+    clearTimeout(alertAnimationTimeoutId);
+  }
+
+  alertAnimationTimeoutId = setTimeout(() => {
+    appContainer.classList.remove("timer-alert");
+    alertAnimationTimeoutId = null;
+  }, 5000);
 }
 
 function formatTime(totalSeconds) {
@@ -138,6 +208,7 @@ function tick() {
   }
 
   if (state.timeRemaining === 0) {
+    notifyModeSwitch();
     switchMode();
   }
 
@@ -162,6 +233,7 @@ function stopTimer() {
 }
 
 function toggleStartPause() {
+  unlockAlarmAudio();
   state.isRunning = !state.isRunning;
 
   if (state.isRunning) {
@@ -188,6 +260,10 @@ workDurationInput.addEventListener("input", () => updateDurationFromInput("work"
 breakDurationInput.addEventListener("input", () => updateDurationFromInput("break", breakDurationInput));
 workDurationInput.addEventListener("change", () => updateDurationFromInput("work", workDurationInput));
 breakDurationInput.addEventListener("change", () => updateDurationFromInput("break", breakDurationInput));
+workIncrementButton.addEventListener("click", () => stepDuration("work", 1));
+workDecrementButton.addEventListener("click", () => stepDuration("work", -1));
+breakIncrementButton.addEventListener("click", () => stepDuration("break", 1));
+breakDecrementButton.addEventListener("click", () => stepDuration("break", -1));
 
 syncDurationInputs();
 render();

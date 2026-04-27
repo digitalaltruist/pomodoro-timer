@@ -23,18 +23,27 @@
             </div>
 
             <button class="timer__duration-toggle" id="duration-toggle" type="button" aria-expanded="false" aria-controls="duration-drawer">
-                Settings
+                <span class="timer__duration-summary" id="duration-summary">Work: 25 min · Break: 5 min</span>
+                <span class="timer__duration-chevron" aria-hidden="true">⏴</span>
             </button>
 
             <section class="section-duration" id="duration-drawer" aria-label="Duration settings" hidden>
                 <div class="section-duration__group">
-                    <label class="section-duration__label" for="work-duration-input">Work (minutes)</label>
-                    <input class="section-duration__input" id="work-duration-input" type="number" min="1" max="60" value="25">
+                    <label class="section-duration__label" for="work-duration-input">Work</label>
+                    <div class="section-duration__stepper">
+                        <button class="section-duration__stepper-button" id="work-decrement-btn" type="button" aria-label="Decrease work minutes">−</button>
+                        <input class="section-duration__input" id="work-duration-input" type="number" min="1" max="60" value="25">
+                        <button class="section-duration__stepper-button" id="work-increment-btn" type="button" aria-label="Increase work minutes">+</button>
+                    </div>
                 </div>
 
                 <div class="section-duration__group">
-                    <label class="section-duration__label" for="break-duration-input">Break (minutes)</label>
-                    <input class="section-duration__input" id="break-duration-input" type="number" min="1" max="60" value="5">
+                    <label class="section-duration__label" for="break-duration-input">Break minutes</label>
+                    <div class="section-duration__stepper">
+                        <button class="section-duration__stepper-button" id="break-decrement-btn" type="button" aria-label="Decrease break minutes">−</button>
+                        <input class="section-duration__input" id="break-duration-input" type="number" min="1" max="60" value="5">
+                        <button class="section-duration__stepper-button" id="break-increment-btn" type="button" aria-label="Increase break minutes">+</button>
+                    </div>
                 </div>
             </section>
         </main>
