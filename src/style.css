@@ -133,9 +133,14 @@ body {
 }
 
 .timer__button {
-  border: 1px solid transparent;
+  inline-size: 7.75rem;
+  block-size: 3.9rem;
+  border: 2px solid transparent;
   border-radius: var(--radius-pill);
-  padding: var(--space-md) var(--space-xl);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -160,14 +165,31 @@ body {
   filter: brightness(1.05);
 }
 
+.timer__button--primary.timer__button--pause {
+  background: rgba(42, 49, 62, 0.92);
+  border: 2px solid var(--color-mode-primary);
+  color: var(--color-text-primary);
+  filter: none;
+}
+
+.timer__button--primary.timer__button--pause:hover {
+  background: rgba(48, 56, 72, 0.95);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-mode-soft) 65%, transparent);
+}
+
+.timer__button--primary.timer__button--pause:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-mode-primary) 70%, white);
+  outline-offset: 2px;
+}
+
 .timer__button--secondary {
-  background: var(--color-surface-elevated);
-  border-color: var(--color-surface-stroke);
+  background: rgba(42, 49, 66, 0.64);
+  border-color: rgba(255, 255, 255, 0.12);
   color: var(--color-text-secondary);
 }
 
 .timer__button--secondary:hover {
-  background: var(--color-surface);
+  background: rgba(48, 56, 74, 0.74);
   color: var(--color-text-primary);
 }
 
@@ -239,6 +261,11 @@ body {
   text-align: center;
 }
 
+.section-duration__group--active .section-duration__stepper {
+  border-color: color-mix(in srgb, var(--color-mode-primary) 45%, rgba(255, 255, 255, 0.2));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-mode-soft) 80%, transparent);
+}
+
 .section-duration__label {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
@@ -290,6 +317,7 @@ body {
   text-align: center;
   padding: var(--space-sm) 0;
   font-variant-numeric: tabular-nums;
+  caret-color: transparent;
   appearance: textfield;
   -moz-appearance: textfield;
 }

@@ -18,6 +18,13 @@ const workIncrementButton = document.getElementById("work-increment-btn");
 const workDecrementButton = document.getElementById("work-decrement-btn");
 const breakIncrementButton = document.getElementById("break-increment-btn");
 const breakDecrementButton = document.getElementById("break-decrement-btn");
+const workDurationGroup = workDurationInput.closest(".section-duration__group");
+const breakDurationGroup = breakDurationInput.closest(".section-duration__group");
+const durationGroupByMode = {
+  work: workDurationGroup,
+  break: breakDurationGroup,
+};
+let activeDurationMode = "work";
 
 function clampDuration(minutes) {
   return Math.min(MAX_DURATION_MINUTES, Math.max(MIN_DURATION_MINUTES, minutes));
@@ -135,6 +142,109 @@ function toggleDurationDrawer() {
   durationDrawer.hidden = !nextOpenState;
 }
 
+function isDurationDrawerOpen() {
+  return !durationDrawer.hidden;
+}
+
+function setActiveDurationMode(mode) {
+  if (mode !== "work" && mode !== "break") {
+    return;
+  }
+
+  activeDurationMode = mode;
+  Object.entries(durationGroupByMode).forEach(([durationMode, groupElement]) => {
+    if (!groupElement) {
+      return;
+    }
+
+    groupElement.classList.toggle("section-duration__group--active", durationMode === activeDurationMode);
+  });
+}
+
+function cycleDurationInputFocus(reverse = false) {
+  const nextMode = reverse
+    ? (activeDurationMode === "work" ? "break" : "work")
+    : (activeDurationMode === "work" ? "break" : "work");
+  setActiveDurationMode(nextMode);
+}
+
+function handleGlobalKeydown(event) {
+  const isArrowKey = event.key === "ArrowUp" || event.key === "ArrowDown";
+
+  if (event.repeat && !isArrowKey) {
+    return;
+  }
+
+  if (event.key === " ") {
+    event.preventDefault();
+    toggleStartPause();
+    return;
+  }
+
+  if (!event.metaKey && !event.ctrlKey && !event.altKey && event.key.toLowerCase() === "r") {
+    event.preventDefault();
+    resetTimer();
+    return;
+  }
+
+  if (!event.metaKey && !event.ctrlKey && !event.altKey && event.key.toLowerCase() === "s") {
+    event.preventDefault();
+    toggleDurationDrawer();
+    return;
+  }
+
+  if (!isDurationDrawerOpen()) {
+    return;
+  }
+
+  if (event.key === "ArrowUp") {
+    event.preventDefault();
+    stepDuration(activeDurationMode, 1);
+    return;
+  }
+
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    stepDuration(activeDurationMode, -1);
+    return;
+  }
+
+  if (event.key === "Tab") {
+    event.preventDefault();
+    cycleDurationInputFocus(event.shiftKey);
+  }
+}
+
+function blockNonNumericInput(event) {
+  if (event.ctrlKey || event.metaKey || event.altKey) {
+    return;
+  }
+
+  const allowedKeys = new Set([
+    "Backspace",
+    "Delete",
+    "Tab",
+    "Escape",
+    "Enter",
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowUp",
+    "ArrowDown",
+    "Home",
+    "End",
+  ]);
+
+  if (allowedKeys.has(event.key)) {
+    return;
+  }
+
+  if (/^\d$/.test(event.key)) {
+    return;
+  }
+
+  event.preventDefault();
+}
+
 function unlockAlarmAudio() {
   if (isAlarmAudioUnlocked) {
     return;
@@ -191,6 +301,7 @@ function render() {
   modeIndicator.textContent = getModeLabel(state.currentMode);
   appContainer.setAttribute("data-mode", state.currentMode);
   startPauseButton.textContent = state.isRunning ? "Pause" : "Start";
+  startPauseButton.classList.toggle("timer__button--pause", state.isRunning);
 }
 
 function switchMode() {
@@ -260,11 +371,25 @@ workDurationInput.addEventListener("input", () => updateDurationFromInput("work"
 breakDurationInput.addEventListener("input", () => updateDurationFromInput("break", breakDurationInput));
 workDurationInput.addEventListener("change", () => updateDurationFromInput("work", workDurationInput));
 breakDurationInput.addEventListener("change", () => updateDurationFromInput("break", breakDurationInput));
+workDurationInput.addEventListener("keydown", blockNonNumericInput);
+breakDurationInput.addEventListener("keydown", blockNonNumericInput);
 workIncrementButton.addEventListener("click", () => stepDuration("work", 1));
 workDecrementButton.addEventListener("click", () => stepDuration("work", -1));
 breakIncrementButton.addEventListener("click", () => stepDuration("break", 1));
 breakDecrementButton.addEventListener("click", () => stepDuration("break", -1));
+workDurationInput.addEventListener("focus", () => setActiveDurationMode("work"));
+breakDurationInput.addEventListener("focus", () => setActiveDurationMode("break"));
+workIncrementButton.addEventListener("focus", () => setActiveDurationMode("work"));
+workDecrementButton.addEventListener("focus", () => setActiveDurationMode("work"));
+breakIncrementButton.addEventListener("focus", () => setActiveDurationMode("break"));
+breakDecrementButton.addEventListener("focus", () => setActiveDurationMode("break"));
+workIncrementButton.addEventListener("click", () => setActiveDurationMode("work"));
+workDecrementButton.addEventListener("click", () => setActiveDurationMode("work"));
+breakIncrementButton.addEventListener("click", () => setActiveDurationMode("break"));
+breakDecrementButton.addEventListener("click", () => setActiveDurationMode("break"));
+document.addEventListener("keydown", handleGlobalKeydown);
 
 syncDurationInputs();
+setActiveDurationMode(activeDurationMode);
 render();
 
